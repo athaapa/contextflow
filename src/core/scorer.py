@@ -77,7 +77,6 @@ class MessageScorer:
         """
 
         scores = []
-        # goal_embedding = self._encode_text(agent_goal)
 
         for i, message in enumerate(messages):
             content = message.get("content", "")
@@ -86,7 +85,6 @@ class MessageScorer:
                 scores.append(0.0)
                 continue
 
-            # relevance_score = self._calculate_relevance(content, goal_embedding)
             utility_score = self._calculate_utility_heuristic(
                 content, agent_goal
             )

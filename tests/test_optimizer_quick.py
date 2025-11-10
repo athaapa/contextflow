@@ -1,10 +1,10 @@
-from src.core.optimizer import ContextOptimizer
+from src.core.optimizer import ContextFlow
 from src.utils.tokenizer import count_tokens
 from dotenv import load_dotenv
 
 load_dotenv()
 
-optimizer = ContextOptimizer()
+optimizer = ContextFlow()
 
 messages = [
     {
@@ -51,6 +51,6 @@ agent_goal = "Resolve customer shipping inquiry"
 print(count_tokens(messages))
 print(count_tokens(messages[-5:]))
 
-optimized = optimizer.optimize(messages, agent_goal, "balanced", 150)
+optimized = optimizer.optimize(messages, agent_goal, 150)
 print(optimized)
 print(count_tokens(optimized))

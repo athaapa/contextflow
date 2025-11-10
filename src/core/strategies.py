@@ -65,8 +65,6 @@ def balanced_strategy(
     keep_bucket = []
     summarize_bucket = []
 
-    print("Summarizing...")
-
     for message, score in sorted_pairs:
         if score >= 7.0:
             keep_bucket.append(message)
