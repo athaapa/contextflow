@@ -8,14 +8,41 @@ import json
 import os
 
 
-api_key = os.getenv("GEMINI_API_KEY")
-
-
 class LLMClient:
-    """Lightweight LLM for utility scoring"""
+    """Lightweight LLM utility"""
 
     def __init__(self):
-        self.client = genai.Client(api_key=api_key)
+        self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+        self.model_name = "gemini-2.5-flash-lite"
+
+    def generate_text(
+        self, prompt: str, max_tokens: int = 500, temperature: float = 0.3
+    ) -> str:
+        """
+        Generate text from a prompt (for summarization)
+
+        Args:
+            prompt: The prompt to send
+            max_tokens: Maximum tokens in response
+            temperature: Randomness (0=deterministic, 1=creative)
+
+        Returns:
+            Generated text
+        """
+
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0,
+                ),
+            )
+
+            return response.text
+
+        except Exception as e:
+            raise Exception(f"LLM generation failed: {e}")
 
     def score_utility(self, text: str, goal: str) -> float:
         """
@@ -43,7 +70,7 @@ class LLMClient:
         Score (number only):"""
 
         response = self.client.models.generate_content(
-            model="gemini-2.5-flash",
+            model=self.model_name,
             contents=prompt,
             config=types.GenerateContentConfig(
                 temperature=0,

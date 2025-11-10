@@ -1,8 +1,13 @@
-from typing import List
+from typing import List, Union, Literal
 from src.utils.tokenizer import count_tokens  # You'll need this
+from src.core.compactor import MessageCompactor
 
 
-def get_strategy(strategy_name: str):
+def get_strategy(
+    strategy_name: Union[
+        Literal["conservative"], Literal["balanced"], Literal["aggressive"]
+    ],
+):
     """Factory to get strategy function"""
     strategies = {
         "conservative": conservative_strategy,
@@ -17,17 +22,20 @@ def conservative_strategy():
 
 
 def balanced_strategy(
-    messages: List[str], scores: List[float], max_tokens: int, compactor
+    messages: List[str],
+    scores: List[float],
+    max_token_count: int,
+    compactor: MessageCompactor,
 ):
     """Optimizes a conversation (i.e. a list of messages) using a balanced strategy (keep high-scoring, summarize mid, drop low)
 
     Args:
         messages: List of messages
         scores: List of scores for each message
-        max_tokens: Maximum number of tokens allowed
+        max_token_count: Maximum number of tokens allowed
         compactor: Tool for summarizing messages
     Returns:
-        Optimized list of messages that is less than max_tokens
+        Optimized list of messages that is less than max_token_count
     """
 
     preserve_recent = 5
@@ -45,10 +53,10 @@ def balanced_strategy(
     current_tokens = count_tokens(optimized)
 
     # FIX: Check if we're already over budget with just recent messages
-    if current_tokens >= max_tokens:
+    if current_tokens >= max_token_count:
         # Emergency: Even recent messages exceed budget
         # Keep reducing until we fit
-        while current_tokens > max_tokens and len(optimized) > 1:
+        while current_tokens > max_token_count and len(optimized) > 1:
             optimized.pop(0)  # Remove oldest of the recent messages
             current_tokens = count_tokens(optimized)
         return optimized
@@ -57,8 +65,10 @@ def balanced_strategy(
     keep_bucket = []
     summarize_bucket = []
 
+    print("Summarizing...")
+
     for message, score in sorted_pairs:
-        if score > 7.0:
+        if score >= 7.0:
             keep_bucket.append(message)
         elif score > 4.0:
             summarize_bucket.append(message)
@@ -67,22 +77,28 @@ def balanced_strategy(
     # Try to add high-scoring messages one by one
     for message in keep_bucket:
         message_tokens = count_tokens([message])
-        if current_tokens + message_tokens <= max_tokens:
+        if current_tokens + message_tokens <= max_token_count:
             optimized.insert(0, message)  # Add before recent messages
             current_tokens += message_tokens
         else:
+            # print(f"adding {message} to summary...")
             # Can't fit this message, add to summarize bucket instead
             summarize_bucket.append(message)
 
+    # print(summarize_bucket)
     if summarize_bucket:
-        summary = compactor.summarize(summarize_bucket)
+        summary = compactor.summarize(
+            summarize_bucket, max_token_count - current_tokens
+        )
         summary_message = {
             "role": "system",
             "content": f"Summary of earlier context: {summary}",
         }
 
+        # print(summary_message)
+
         summary_tokens = count_tokens([summary_message])
-        if current_tokens + summary_tokens <= max_tokens:
+        if current_tokens + summary_tokens <= max_token_count:
             optimized.insert(0, summary_message)
             current_tokens += summary_tokens
         # If summary doesn't fit, skip it (rare but possible)
