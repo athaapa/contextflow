@@ -1,4 +1,3 @@
-# ContextFlow
 <p align="center">
   <p align="center">
 	<img width="128" height="128" src="https://github.com/athaapa/contextflow/blob/74d4dffdb3c0c1777ccd3593b7d52f89f9406afc/images/logo.png" alt="Logo">
