@@ -1,4 +1,4 @@
-from src.core.compactor import MessageCompactor
+from core.compactor import MessageCompactor
 from dotenv import load_dotenv
 
 load_dotenv()

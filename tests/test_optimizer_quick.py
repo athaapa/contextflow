@@ -1,5 +1,5 @@
-from src.core.optimizer import ContextFlow
-from src.utils.tokenizer import count_tokens
+from core.optimizer import ContextFlow
+from utils.tokenizer import count_tokens
 from dotenv import load_dotenv
 
 load_dotenv()

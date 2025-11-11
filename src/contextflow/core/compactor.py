@@ -3,12 +3,18 @@ Implements message summarization techniques
 """
 
 from typing import List, Dict
-from src.utils.llm import LLMClient
+from contextflow.utils.llm import LLMClient
 
 
 class MessageCompactor:
-    def __init__(self):
-        self.llm = LLMClient()
+    def __init__(self, model: str):
+        """
+        Initialize the MessageCompactor.
+
+        Args:
+            model: The LLM provider to use for summarization (e.g., "gemini", "groq").
+        """
+        self.llm = LLMClient(model)
 
     def summarize(
         self,
@@ -67,7 +73,7 @@ class MessageCompactor:
         Summary:"""
 
         try:
-            summary = self.llm.generate_text(
+            summary = self.llm.summarize_text(
                 prompt,
                 max_tokens=max_token_count,
                 temperature=0.3,  # Low temperature for factual summary
@@ -80,8 +86,15 @@ class MessageCompactor:
             return self._fallback_summary(messages_to_summarize)
 
     def _format_messages(self, messages: List[Dict[str, str]]) -> str:
-        """Format messages into a readable conversation"""
+        """
+        Format messages into a readable conversation string.
 
+        Args:
+            messages: List of message dictionaries with "role" and "content" keys.
+
+        Returns:
+            Formatted string with each message on a new line in "Role: content" format.
+        """
         formatted = []
         for msg in messages:
             role = msg.get("role", "unknown")
@@ -91,8 +104,15 @@ class MessageCompactor:
         return "\n".join(formatted)
 
     def _fallback_summary(self, messages: List[Dict[str, str]]) -> str:
-        """Simple fallback if LLM summarization fails"""
+        """
+        Simple fallback summary if LLM summarization fails.
 
+        Args:
+            messages: List of message dictionaries with "role" and "content" keys.
+
+        Returns:
+            Concatenated message contents joined with " ... ".
+        """
         # Just concatenate the messages with "..." between them
         contents = [msg.get("content", "") for msg in messages]
         return " ... ".join(contents)

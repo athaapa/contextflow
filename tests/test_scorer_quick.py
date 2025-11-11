@@ -1,4 +1,4 @@
-from src.core.scorer import MessageScorer
+from core.scorer import MessageScorer
 from dotenv import load_dotenv
 
 load_dotenv()

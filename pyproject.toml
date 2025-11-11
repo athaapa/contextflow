@@ -1,3 +1,27 @@
+[build-system]
+requires = ["setuptools>=80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "contextflow-ai"
+version = "0.1.3"
+authors = [
+    {name="Ayush Thapa", email="ayushthapa026@gmail.com"}
+]
+description = " Context optimization for AI agents"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [    
+    "google-genai==1.49.0",
+    "click==8.1.7",
+    "rich==13.9.4",
+    "python-dotenv==1.0.1",
+    "numpy==2.3.4"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
 exclude = [
@@ -28,6 +52,7 @@ exclude = [
     "site-packages",
     "venv",
 ]
+
 
 # Same as Black.
 line-length = 80

@@ -2,14 +2,12 @@
 End-to-end test of ContextFlow
 """
 
-from src.core.optimizer import ContextFlow
-from src.utils.tokenizer import count_tokens
+from contextflow import ContextFlow
+from contextflow.utils.tokenizer import count_tokens
 from dotenv import load_dotenv
 import time
 
 load_dotenv()
-
-start_time = time.time_ns() // 1_000_000
 
 # Sample conversation (customer support)
 messages = [
@@ -148,13 +146,12 @@ print("\nOPTIMIZING...")
 result = cf.optimize(messages=messages, agent_goal=goal, max_token_count=350)
 
 # Show results
-end_time = time.time_ns() // 1_000_000
 print("\nAFTER OPTIMIZATION:")
 print(f"   Messages: {len(result['messages'])}")
 print(f"   Tokens: {result['analytics']['tokens_after']}")
 print(f"   Reduction: {result['analytics']['reduction_pct']:.1f}%")
 print(f"   Tokens saved: {result['analytics']['tokens_saved']}")
-print(f"   Time taken: {end_time - start_time}ms")
+print(f"   Time taken: {result['analytics']['time_taken_ms']}ms")
 
 # Show the optimized messages
 print("\n OPTIMIZED CONTEXT:")
