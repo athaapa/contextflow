@@ -25,7 +25,7 @@ ContextFlow solves this by:
 # Quickstart
 ## Installation
 ```bash
-pip install contextflow
+pip install contextflow-ai
 ```
 ## Setup
 Get your Gemini API Key (for message scoring and summarization):
