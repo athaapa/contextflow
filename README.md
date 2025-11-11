@@ -58,3 +58,5 @@ print("Messages ready for LLM:", result["messages"])
 # Now use result.messages in your LLM query!
 # response = openai.ChatCompletion.create(model="gpt-4", messages=result.messages)
 ```
+# License
+MIT License - see [LICENSE](https://github.com/athaapa/contextflow/blob/6b79c95d55c53c40bd8f500a6c921ea394c32666/LICENSE) file for details.
