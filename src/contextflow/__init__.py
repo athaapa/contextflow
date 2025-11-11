@@ -27,7 +27,7 @@ class ContextFlow:
     def optimize(
         self,
         messages: List[Dict[str, str]],
-        agent_goal: str,
+        goal: str,
         max_token_count: int = 500,
     ):
         """
@@ -35,7 +35,7 @@ class ContextFlow:
 
         Args:
             messages: List of message dictionaries with "role" and "content" keys.
-            agent_goal: The goal or purpose of the agent to guide relevance scoring.
+            goal: The goal or purpose of the agent to guide relevance scoring.
             max_token_count: Maximum number of tokens allowed in the optimized output.
                            Defaults to 500.
 
@@ -51,7 +51,7 @@ class ContextFlow:
         start_time = time.time_ns() // 1_000_000
 
         scores = self.message_scorer.score_messages(
-            messages=messages, agent_goal=agent_goal
+            messages=messages, goal=goal
         )
 
         optimized = balanced_strategy(

@@ -90,15 +90,18 @@ def balanced_strategy(
     # print(summarize_bucket)
     if summarize_bucket:
         summary_tokens = count_tokens(summarize_bucket)
-        print(f"Tokens needed to summarize: {summary_tokens}")
-        summary = compactor.summarize(summarize_bucket, summary_tokens * 0.2)
+        # print(f"Tokens needed to summarize: {summary_tokens}")
+        summary = compactor.summarize(
+            messages_to_summarize=summarize_bucket,
+            max_token_count=3 * summary_tokens // 10,
+        )
         summary_message = {
             "role": "system",
             "content": f"Summary of earlier context: {summary}",
         }
-        print(f"Tokens summary: {count_tokens([summary_message])}")
+        # print(f"Tokens summary: {count_tokens([summary_message])}")
 
-        # print(summary_message)
+        # print(summarize_bucket, "\n", summary_message)
 
         summary_tokens = count_tokens([summary_message])
         if current_tokens + summary_tokens <= max_token_count:

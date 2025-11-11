@@ -3,11 +3,13 @@ Local LLM client using Gemini
 """
 
 from google import genai
-from google.genai import types
 from groq import Groq
 import os
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
+from anthropic import Anthropic
+from openai import OpenAI
+from typing import List, Dict
+
+from contextflow.utils.providers import gemini, groq, claude
 
 
 class LLMClient:
@@ -27,17 +29,19 @@ class LLMClient:
         self.provider = provider
 
         if provider == "gemini":
-            self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-            self.model_name = "gemini-2.5-flash-lite"
+            self.google_client = genai.Client(
+                api_key=os.getenv("GEMINI_API_KEY")
+            )
         elif provider == "groq":
             self.groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-            self.model_name = "llama-3.3-70b-versatile"
+        elif provider == "anthropic":
+            self.anthropic_client = Anthropic(
+                api_key=os.getenv("ANTHROPIC_KEY")
+            )
         else:
             raise ValueError(f"Unknown provider: {provider}")
 
-    def summarize_text(
-        self, prompt: str, max_tokens: int = 500, temperature: float = 0.3
-    ) -> str:
+    def summarize_text(self, source: str, max_tokens: int) -> str:
         """
         Generate text from a prompt (for summarization)
 
@@ -49,74 +53,36 @@ class LLMClient:
         Returns:
             Generated text
         """
-
-        try:
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    temperature=0,
-                ),
-            )
-
-            return response.text
-
-        except Exception as e:
-            raise Exception(f"LLM generation failed: {e}")
-
-    def generate_content(
-        self, prompt: str, config: types.GenerateContentConfig
-    ):
-        """
-        Generate content synchronously using the configured LLM.
-
-        Args:
-            prompt: The text prompt to send to the LLM.
-            config: GenerateContentConfig object specifying generation parameters.
-
-        Returns:
-            Response object from the LLM containing the generated content.
-        """
-        return self.client.models.generate_content(
-            model=self.model_name, contents=prompt, config=config
-        )
-
-    async def generate_content_async(
-        self, prompt: str, config: types.GenerateContentConfig
-    ):
-        """
-        Generate content asynchronously using the configured LLM.
-
-        Args:
-            prompt: The text prompt to send to the LLM.
-            config: GenerateContentConfig object specifying generation parameters.
-
-        Returns:
-            Response object from the LLM containing the generated content.
-        """
-        if self.provider == "gemini":
-            return await self.client.aio.models.generate_content(
-                model=self.model_name, contents=prompt, config=config
-            )
-        else:
-            print("groq")
-            loop = asyncio.get_event_loop()
-            executor = ThreadPoolExecutor(max_workers=1)
-
-            def _sync_call():
-                response = self.groq_client.chat.completions.create(
-                    model=self.model_name,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0,
-                    max_tokens=500,
-                    response_format={"type": "json_object"},
+        match self.provider:
+            case "gemini":
+                return gemini.LLM(self.google_client).summarize_text(
+                    source=source,
+                    max_tokens=max_tokens,
                 )
-                return response.choices[0].message.content
+            case "anthropic":
+                return claude.LLM(self.anthropic_client).summarize_text(
+                    source=source,
+                    max_tokens=max_tokens,
+                )
 
-            text = await loop.run_in_executor(executor, _sync_call)
+    async def score_batch_async(
+        self, goal: str, batch: List[Dict[str, str]], max_tokens: int
+    ):
+        match self.provider:
+            case "gemini":
+                return await gemini.LLM(self.google_client).score_batch_async(
+                    goal=goal,
+                    batch=batch,
+                    max_tokens=max_tokens,
+                )
+            case "anthropic":
+                return await claude.LLM(
+                    self.anthropic_client
+                ).score_batch_async(
+                    goal=goal,
+                    batch=batch,
+                    max_tokens=max_tokens,
+                )
 
-            class GroqResponse:
-                def __init__(self, text):
-                    self.text = text
-
-            return GroqResponse(text)
+        # Fallback
+        return [5.0] * len(batch)

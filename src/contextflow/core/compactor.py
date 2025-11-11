@@ -58,25 +58,10 @@ class MessageCompactor:
 
         conversation_text = self._format_messages(messages_to_summarize)
 
-        prompt = f"""You are summarizing a conversation to preserve key information while reducing length.
-
-        Conversation:
-        {conversation_text}
-
-        Instructions:
-        - Create a dense, information-rich summary
-        - Preserve all critical facts, names, numbers, and decisions
-        - Remove pleasantries and redundant information
-        - Target length: approximately {max_token_count} tokens
-        - Write in third person (e.g., "User reported X. Agent confirmed Y.")
-
-        Summary:"""
-
         try:
             summary = self.llm.summarize_text(
-                prompt,
+                source=conversation_text,
                 max_tokens=max_token_count,
-                temperature=0.3,  # Low temperature for factual summary
             )
 
             return summary.strip()

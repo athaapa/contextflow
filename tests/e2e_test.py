@@ -5,7 +5,6 @@ End-to-end test of ContextFlow
 from contextflow import ContextFlow
 from contextflow.utils.tokenizer import count_tokens
 from dotenv import load_dotenv
-import time
 
 load_dotenv()
 
@@ -130,7 +129,7 @@ print("CONTEXTFLOW END-TO-END TEST")
 print("=" * 60)
 
 # Initialize ContextFlow
-cf = ContextFlow()
+cf = ContextFlow(scoring_model="gemini", summarizing_model="gemini")
 
 # Define goal
 goal = "Resolve customer shipping inquiry"
@@ -143,7 +142,7 @@ print(f"   Estimated tokens: ~{estimated_tokens_before}")
 
 # Optimize
 print("\nOPTIMIZING...")
-result = cf.optimize(messages=messages, agent_goal=goal, max_token_count=350)
+result = cf.optimize(messages=messages, goal=goal, max_token_count=350)
 
 # Show results
 print("\nAFTER OPTIMIZATION:")
@@ -158,8 +157,8 @@ print("\n OPTIMIZED CONTEXT:")
 print("=" * 60)
 for i, msg in enumerate(result["messages"], 1):
     role = msg.get("role", "unknown")
-    content = msg.get("content", "")[:100]  # First 100 chars
-    print(f"{i}. [{role}] {content}...")
+    content = msg.get("content", "")  # First 100 chars
+    print(f"{i}. [{role}] {content}")
 
 print("\n" + "=" * 60)
 print("TEST COMPLETE")
