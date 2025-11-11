@@ -16,11 +16,11 @@
 Most LLM applications waste money by sending entire chat histories, long chains of document chunks, or endless boilerplate every API call. Most of it is redundant, repetitive, or irrelevant to the user’s actual goal.
 
 ContextFlow solves this by:
-    - Ranking every message by utility using a fast LLM batch
-    - Keeping only high-signal content (order numbers, errors, decisions)
-	- Aggressively summarizing medium-utility content
-    - Dropping low-value fluff and polite filler
-	- Always preserving the last few recent messages for context
+- Ranking every message by utility using a fast LLM batch
+- Keeping only high-signal content (order numbers, errors, decisions)
+- Aggressively summarizing medium-utility content
+- Dropping low-value fluff and polite filler
+- Always preserving the last few recent messages for context
 
 # Quickstart
 ## Installation
